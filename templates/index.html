@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<style>
+.container { margin-top: 50px; }  
+</style>
+</head>
+<body>
+  <div class="container">
+    <form class="form-horizontal" action='/play' method="POST">
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="url">URL:</label>
+        <div class="col-sm-8">
+          <input type="text" name="url" class="form-control" id="url" placeholder="Enter url">
+        </div>
+        <div class="col-sm-2">
+          <button type="submit" class="btn btn-default">Repeate</button>
+        </div>
+      </div>
+    </form>
+    <div class="row">
+      <div class="col-sm-3"></div>
+      <div class="col-sm-6" id="player">
+      {% if msg=="error" %}
+        <p class="lead">Error in URL parsing. Try more...</p>
+      {% endif %}
+      {% if msg=="ok" %}
+        <iframe id="existing-iframe-example"
+          width="640" height="360"
+          src="{{url}}"
+          frameborder="0"
+          style="border: solid 4px #37474F">
+        </iframe>
+        <form class="form-horizontal" action='/play' method="POST">
+        <input type="hidden" name="add" value="1">
+        <button type="submit" class="btn btn-default">Add</button>
+        </form>
+      </div>
+    </form>
+    
+      {% endif %}
+      </div>
+      <div class="col-sm-3"></div>
+    </div> 
+  </div>
+  <div class="container">
+    {% for iter in result %}
+      <div class="col-sm-2">
+          <div>
+            <form action='/play' method="POST">
+              <input type="hidden" name="play" id="play" value="{{iter.values()[0]}}">
+              <button type="submit" class="btn btn-default">Play</button>
+            </form>
+          </div>
+            <img class="img-thumbnail" src="http://img.youtube.com/vi/{{iter.values()[0]}}/0.jpg"></a>
+          <div>
+            <form action='/play' method="POST">
+              <input type="hidden" name="delete" id="delete" value="{{iter.keys()[0]}}">
+              <button type="submit" class="btn btn-default">Delete</button>
+            </form>
+          </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% if msg=="ok" %}
+    <script> 
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    
+    var player;
+
+    function onYouTubeIframeAPIReady() {
+     player = new YT.Player('existing-iframe-example', {
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange,
+          'onError': onPlayerError
+        }
+     });
+    }
+
+    function onPlayerReady(event) {
+      event.target.playVideo();
+    }
+
+    function onPlayerStateChange(event) {
+
+      if (event.data == 0) {
+        player.playVideo();
+      }
+    }
+
+    function onPlayerError(event) {
+      alert("Something went wrong. Try to reload page.");
+    }
+
+  </script>
+  {% endif %}
+</body>
+</html>
